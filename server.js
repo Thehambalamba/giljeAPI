@@ -3,6 +3,9 @@ var app = express();
 var bodyParser = require('body-parser');
 var morgan = require('morgan');
 var mongoose = require('mongoose');
+var User = require('./app/models/user');
+var Product = require('./app/models/product');
+var Category = require('./app/models/category');
 var jwt = require('jsonwebtoken');
 var config = require('./config');
 
