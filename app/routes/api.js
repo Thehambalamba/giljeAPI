@@ -11,6 +11,35 @@ var superSecret = config.secret;
 module.exports = function(app, express) {
 
     var apiRouter = express.Router();
+    apiRouter.route('/users')
+
+    .post(function(req, res) {
+        var user = new User();
+        user.firstName = req.body.firstName;
+        user.lastName = req.body.lastName;
+        user.userName = req.body.userName;
+        user.password = req.body.password;
+        user.email = req.body.email;
+        user.phoneNumber = req.body.phoneNumber;
+        user.products = req.body.products;
+
+        user.save(function(err) {
+            if (err) {
+                if (err.code == 11000) {
+                    return res.json({
+                        success: false,
+                        messaage: 'Korisnik sa tim imenom već postoji, pokušajte ponovo.'
+                    });
+                } else {
+                    return res.send(err);
+                }
+            }
+            res.json({
+                message: 'Kreiran korisnik!'
+            });
+        });
+    })
+
     apiRouter.route('/authenticate')
     apiRouter.post('/authenticate', function(req, res) {
 
@@ -277,33 +306,6 @@ module.exports = function(app, express) {
     });
 
     apiRouter.route('/users')
-
-    .post(function(req, res) {
-        var user = new User();
-        user.firstName = req.body.firstName;
-        user.lastName = req.body.lastName;
-        user.userName = req.body.userName;
-        user.password = req.body.password;
-        user.email = req.body.email;
-        user.phoneNumber = req.body.phoneNumber;
-        user.products = req.body.products;
-
-        user.save(function(err) {
-            if (err) {
-                if (err.code == 11000) {
-                    return res.json({
-                        success: false,
-                        messaage: 'Korisnik sa tim imenom već postoji, pokušajte ponovo.'
-                    });
-                } else {
-                    return res.send(err);
-                }
-            }
-            res.json({
-                message: 'Kreiran korisnik!'
-            });
-        });
-    })
 
     .get(function(req, res) {
         User.find(function(err, users) {
