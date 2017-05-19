@@ -7,7 +7,7 @@ var ProductSchema = new Schema({
     name: { type: String, require: true },
     category: { type: Schema.Types.ObjectId, ref: 'Category', default: null },
     size: { type: Number, required: true },
-    gender: { type: Number, required: true },
+    gender: { type: Boolean, required: true },
     description: { type: String, required: true },
     used: { type: Boolean, required: true },
     price: { type: Number, required: true },
