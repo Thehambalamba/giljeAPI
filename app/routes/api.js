@@ -14,43 +14,42 @@ module.exports = function(app, express) {
     apiRouter.route('/authenticate')
     apiRouter.post('/authenticate', function(req, res) {
 
-        // find the user
+        // nadji korisnika
         User.findOne({
             userName: req.body.userName
         }).select('name username password').exec(function(err, user) {
 
             if (err) throw err;
 
-            // no user with that username was found
+            // ne postoji korisnik sa tim usernamom
             if (!user) {
                 res.json({
                     success: false,
-                    message: 'Authentication failed. User not found.'
+                    message: 'Autentikacija nije uspela. Korisnik ne postoji.'
                 });
             } else if (user) {
 
-                // check if password matches
+                // proveri sifru
                 var validPassword = user.comparePassword(req.body.password);
                 if (!validPassword) {
                     res.json({
                         success: false,
-                        message: 'Authentication failed. Wrong password.'
+                        message: 'Autentikacija nije uspela. Pogresna sifra.'
                     });
                 } else {
 
-                    // if user is found and password is right
-                    // create a token
+                    // kreiraj token ukoliko je sve uredu
                     var token = jwt.sign({
                         name: user.name,
                         userName: user.userName
                     }, superSecret, {
-                        expiresIn: '24h' // expires in 24 hours
+                        expiresIn: '24h' // kada istice
                     });
 
-                    // return the information including token as JSON
+                    // vrati informacije sa porukom
                     res.json({
                         success: true,
-                        message: 'Enjoy your token!',
+                        message: 'Token dodeljen.',
                         token: token
                     });
                 }
@@ -60,40 +59,39 @@ module.exports = function(app, express) {
         });
     });
 
-    // route middleware to verify a token
+    // midleware za aplikaciju i verifikaciju tokena
     apiRouter.use(function(req, res, next) {
-        // do logging
-        console.log('Somebody just came to our app!');
+        // log
+        console.log('Neko je dosao na nasu aplikaciju');
 
-        // check header or url parameters or post parameters for token
+        // proveri dali zahtev ima token u headeru
         var token = req.body.token || req.query.token || req.headers['x-access-token'];
 
-        // decode token
+        // dekodiraj token
         if (token) {
 
-            // verifies secret and checks exp
+            // proveri secret
             jwt.verify(token, superSecret, function(err, decoded) {
 
                 if (err) {
                     res.status(403).send({
                         success: false,
-                        message: 'Failed to authenticate token.'
+                        message: 'Neuspesna authentikacija.'
                     });
                 } else {
-                    // if everything is good, save to request for use in other routes
+                    
                     req.decoded = decoded;
 
-                    next(); // make sure we go to the next routes and don't stop here
+                    next(); 
                 }
             });
 
         } else {
 
-            // if there is no token
-            // return an HTTP response of 403 (access forbidden) and an error message
+            // ukoliko nema tokena posalji HTTP response 403 
             res.status(403).send({
                 success: false,
-                message: 'No token provided.'
+                message: 'Niste dostavili token'
             });
 
         }
@@ -206,7 +204,7 @@ module.exports = function(app, express) {
 
         product.save(function(err) {
             if (err) {
-                // duplicate entry
+                // ukolkiko vec postoji
                 if (err.code == 11000)
                     return res.json({
                         success: false,
@@ -215,9 +213,9 @@ module.exports = function(app, express) {
                 else
                     return res.send(err);
             }
-            // return a message
+            // poruka
             res.json({
-                message: 'Product created!'
+                message: 'Proizvod je kreiran.'
             });
         });
     })
@@ -226,7 +224,7 @@ module.exports = function(app, express) {
         Product.find(function(err, product) {
             if (err) res.send(err);
 
-            // return the products
+            // vrati kreirani proizvod
             res.json(product);
         });
     });
