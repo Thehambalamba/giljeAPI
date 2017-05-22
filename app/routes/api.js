@@ -1,9 +1,7 @@
 var bodyParser = require('body-parser');
 var User = require('../models/user');
 var Product = require('../models/product');
-var Category = require('../models/category');
 var mongoose = require('mongoose');
-var Category = mongoose.model('Category');
 var jwt = require('jsonwebtoken');
 var config = require('../../config');
 var superSecret = config.secret;
@@ -24,7 +22,6 @@ module.exports = function(app, express) {
         user.password = req.body.password;
         user.email = req.body.email;
         user.phoneNumber = req.body.phoneNumber;
-        user.products = req.body.products;
 
         user.save(function(err) {
             if (err) {
@@ -138,88 +135,7 @@ module.exports = function(app, express) {
             message: 'dobro došli'
         });
     });
-    // kategorija
-    apiRouter.route('/category')
-
-    .get(function(req, res) {
-            Category.find({}).exec(function(err, categories) {
-                if (err) {
-                    res.json("Kategorija nije pronadjena!");
-                } else {
-                    res.json(categories);
-                }
-            });
-        })
-        .post(function(req, res) {
-            Category.find({}).exec(function(err, categories) {
-                if (err) {
-                    //res.json("Kategorija nije pronadjena!");
-                } else {
-                    var found = false;
-                    for (var i in categories) {
-                        if (categories[i].name == req.body.name) {
-                            found = true;
-                        }
-                    }
-                    if (!found) {
-                        console.log(req.body.name, req.body.parent);
-                        var category = new Category({
-                            name: req.body.name,
-                            parent: req.body.parent ? req.body.parent : null
-                        });
-                        category.save(function(err, result) {
-                            if (err) {
-                                res.json("Kategorija nije sačuvana!");
-                            } else {
-                                res.json(result);
-                            }
-                        });
-                    }
-                }
-
-            });
-        })
-    apiRouter.route('/category/:category_id')
-        .get(function(req, res) {
-            Category.findById(req.params.category_id, function(err, category) {
-                if (err) {
-                    res.send(err);
-                }
-                res.json(category);
-            });
-        })
-        .delete(function(req, res) {
-            Category.remove({
-                _id: req.params.category_id
-            }, function(err, category) {
-                if (err) {
-                    res.send(err);
-                }
-                res.json({
-                    message: 'Kategorija uspešno obrisana!'
-                });
-            });
-        })
-
-    .put(function(req, res) {
-        console.log('Kategorija se ažurira!');
-        var category = {
-            name: req.body.name,
-            parent: req.body.parent
-        };
-        Category.update({
-            _id: req.body.id
-        }, category, {
-            upsert: true
-        }, function(err) {
-            if (err) {
-                res.json("Kategorija nije ažurirana!");
-            } else {
-                res.json(err);
-            }
-        });
-    });
-
+    
     // /proizvodi ruta
     apiRouter.route('/products')
 
@@ -227,14 +143,10 @@ module.exports = function(app, express) {
 
         var product = new Product();
         product.name = req.body.name;
-        product.category = req.body.category;
         product.size = req.body.size;
-        product.gender = req.body.gender;
         product.description = req.body.description;
-        product.used = req.body.used;
         product.price = req.body.price;
         product.brand = req.body.brand;
-        product.user = req.body.user;
 
         product.save(function(err) {
             if (err) {
@@ -280,14 +192,10 @@ module.exports = function(app, express) {
 
             if (err) res.send(err);
             if (req.body.name) product.name = req.body.name;
-            if (req.body.category) product.category = req.body.category;
             if (req.body.size) product.size = req.body.size;
-            if (req.body.gender) product.gender = req.body.gender;
             if (req.body.description) product.description = req.body.description;
-            if (req.body.used) product.used = req.body.used;
             if (req.body.price) product.price = req.body.price;
             if (req.body.brand) product.brand = req.body.brand;
-            if (req.body.user) product.user = req.body.user;
 
             product.save(function(err) {
                 if (err) res.send(err);
@@ -331,7 +239,6 @@ module.exports = function(app, express) {
         user.password = req.body.password;
         user.email = req.body.email;
         user.phoneNumber = req.body.phoneNumber;
-        user.products = req.body.products;
 
         user.save(function(err) {
             if (err) {
@@ -383,9 +290,6 @@ module.exports = function(app, express) {
             }
             if (req.body.phoneNumber) {
                 user.phoneNumber = req.body.phoneNumber;
-            }
-            if (req.body.products) {
-                user.products = req.body.products;
             }
 
             user.save(function(err) {
