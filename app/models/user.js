@@ -11,7 +11,6 @@ var UserSchema = new Schema({
     password: { type: String, required: true, select: false },
     email: { type: String, required: true, index: { unique: true } },
     phoneNumber: { type: Number, required: true },
-    products: [{ type: Schema.Types.ObjectId, ref: 'Product'}]
 
 });
 
