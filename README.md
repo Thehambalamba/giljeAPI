@@ -48,6 +48,11 @@ U rootu aplikacije instalirati pakete
 ```
 npm install
 ```
+Server zahteva pokrenutu instancu mongoDB baze komandom
+
+```
+sudo mongod
+```
 
 Server pokrenuti pomocu nodemon-a
 
