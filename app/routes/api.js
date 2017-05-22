@@ -11,6 +11,9 @@ var superSecret = config.secret;
 module.exports = function(app, express) {
 
     var apiRouter = express.Router();
+    apiRouter.options('*', function(req, res) {
+        res.send();
+    });
     apiRouter.route('/users')
 
     .post(function(req, res) {
@@ -35,18 +38,19 @@ module.exports = function(app, express) {
                 }
             }
             res.json({
+                success: true,
                 message: 'Kreiran korisnik!'
             });
         });
     })
-
     apiRouter.route('/authenticate')
-    apiRouter.post('/authenticate', function(req, res) {
+
+    .post(function(req, res) {
 
         // nadji korisnika
         User.findOne({
             userName: req.body.userName
-        }).select('name username password').exec(function(err, user) {
+        }).select('firstName lastName userName password email phone products').exec(function(err, user) {
 
             if (err) throw err;
 
@@ -79,7 +83,8 @@ module.exports = function(app, express) {
                     res.json({
                         success: true,
                         message: 'Token dodeljen.',
-                        token: token
+                        token: token,
+                        user: user
                     });
                 }
 
@@ -94,7 +99,7 @@ module.exports = function(app, express) {
         console.log('Neko je dosao na nasu aplikaciju');
 
         // proveri dali zahtev ima token u headeru
-        var token = req.body.token || req.query.token || req.headers['x-access-token'];
+        var token = req.body.token || req.query.token || req.get('Authorization');
 
         // dekodiraj token
         if (token) {
@@ -108,10 +113,10 @@ module.exports = function(app, express) {
                         message: 'Neuspesna authentikacija.'
                     });
                 } else {
-                    
+
                     req.decoded = decoded;
 
-                    next(); 
+                    next();
                 }
             });
 
@@ -237,14 +242,16 @@ module.exports = function(app, express) {
                 if (err.code == 11000)
                     return res.json({
                         success: false,
-                        message: ''
+                        message: 'Došlo je do greške pokusajte ponovo.'
                     });
                 else
                     return res.send(err);
             }
             // poruka
             res.json({
+                success: true,
                 message: 'Proizvod je kreiran.'
+                
             });
         });
     })
@@ -314,7 +321,34 @@ module.exports = function(app, express) {
             }
             res.json(users);
         });
-    });
+    })
+
+    .post(function(req, res) {
+        var user = new User();
+        user.firstName = req.body.firstName;
+        user.lastName = req.body.lastName;
+        user.userName = req.body.userName;
+        user.password = req.body.password;
+        user.email = req.body.email;
+        user.phoneNumber = req.body.phoneNumber;
+        user.products = req.body.products;
+
+        user.save(function(err) {
+            if (err) {
+                if (err.code == 11000) {
+                    return res.json({
+                        success: false,
+                        messaage: 'Korisnik sa tim imenom već postoji, pokušajte ponovo.'
+                    });
+                } else {
+                    return res.send(err);
+                }
+            }
+            res.json({
+                message: 'Kreiran korisnik!'
+            });
+        });
+    })
 
     apiRouter.route('/users/:user_id')
 
