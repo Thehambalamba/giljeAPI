@@ -1,6 +1,8 @@
 # Gilje
 
-GitHub repozitorijum za API aplikacije "gilje". 
+GitHub repozitorijum za API aplikacije "gilje" za završni rad.
+
+Nikola Pervić
 
 ## Instalacija Noda
 
